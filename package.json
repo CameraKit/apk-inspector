@@ -4,5 +4,8 @@
   "main": "index.js",
   "repository": "https://github.com/CameraKit/apk-inspector-web.git",
   "author": "emersoncloud <emerson.cloud@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "inquirer": "^6.2.1"
+  }
 }
