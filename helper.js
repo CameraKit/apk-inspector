@@ -9,9 +9,14 @@ module.exports = {
     getDependenciesRecurse('', '', '', packageList);
   },
 
-  getPermissions: function(permissionBlock){
-    let regex = /<uses-permission android:name="(.*)"/gm;
-    const permissionsArray = permissionBlock.match(regex);
+  getPermissions: function(permissionsBlock){
+    let myRe = new RegExp('<uses-permission android:name="(.*)"', 'gm');
+    let tempArray;
+    let permissionsArray = [];
+
+    while ((tempArray = myRe.exec(permissionsBlock)) != null) {
+      permissionsArray.push(tempArray[1]);      
+    }
     return permissionsArray;
   },
 };

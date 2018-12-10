@@ -60,5 +60,8 @@ typings/
 # next.js build output
 .next
 
-#VS Code
+# VS Code
 .vscode
+
+# Testing Files
+.test_apk
