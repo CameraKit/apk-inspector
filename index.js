@@ -3,9 +3,25 @@
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const figlet = require('figlet');
+const chalk = require('chalk');
+const clear = require('clear');
 
 const inquirer = require('inquirer');
 const helper = require('./helper');
+
+clear();
+
+console.log(
+  chalk.magentaBright(
+    figlet.textSync('APK Inspector', {
+      font: 'Standard',
+      horizontalLayout: 'default',
+      verticalLayout: 'default',
+    }
+  )
+));
+
 
 inquirer
   .prompt([
