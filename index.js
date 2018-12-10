@@ -1,11 +1,16 @@
+#!/usr/bin/env node
+
 // CLI to print permisisons and packages from specified APK
 
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+
 const figlet = require('figlet');
 const chalk = require('chalk');
 const clear = require('clear');
+
+const argv = require('yargs').argv;
 
 const inquirer = require('inquirer');
 const helper = require('./lib/helper');
