@@ -8,7 +8,7 @@ const chalk = require('chalk');
 const clear = require('clear');
 
 const inquirer = require('inquirer');
-const helper = require('./helper');
+const helper = require('./lib/helper');
 
 clear();
 
