@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 // CLI to print permisisons and packages from specified APK
+'use strict';
 
 const { exec } = require('child_process');
 const path = require('path');
@@ -10,12 +11,48 @@ const figlet = require('figlet');
 const chalk = require('chalk');
 const clear = require('clear');
 
-const argv = require('yargs').argv;
-
 const inquirer = require('inquirer');
 const helper = require('./lib/helper');
 
-clear();
+var argv = require('yargs')
+  .usage('Usage: $0 [options]')
+  .option('l', {
+    alias: 'local-source',
+    nargs: 1,
+    describe: '<path_to_apk> local apk source',
+  })
+  .option('r', {
+    alias: 'remote-source',
+    nargs: 1,
+    describe: '<url> remote apk souce',
+  })
+  .option('p', {
+    alias: 'permissions-only',
+    describe: 'only output permissions',
+    type: 'boolean',
+  })
+  .option('d', {
+    alias: 'dependencies-only',
+    describe: 'only output dependencies',
+    type: 'boolean',
+  })
+  .option('x', {
+    alias: 'specify-permission',
+    nargs: 1,
+    describe: '<string> name of permission to search',
+  })
+  .option('y', {
+    alias: 'specify-dependency',
+    nargs: 1,
+    describe: '<string> name of dependency to search',
+  })
+  .alias('v', 'version')
+  .describe('v', 'show version information')
+  .help('h')
+  .alias('h', 'help')
+  .example('$0 -r https://pathtoapk.io -x camera')
+  .example('$0 -l ./Downloads/myapk.apk -d')
+  .argv;
 
 console.log(
   chalk.magentaBright(
@@ -27,25 +64,48 @@ console.log(
   )
 ));
 
+let localOrRemote = {
+  type: 'list',
+  name: 'source',
+  message: 'Analyze local or remote source APK?',
+  choices: ['remote', 'local'],
+}
 
-inquirer
-  .prompt([
-    {
-      type: 'input',
-      name: 'apk',
-      message: 'APK file to analyze'
+let getLocalAPK = {
+  type: 'input',
+  name: 'pathToApk',
+  message: 'Path to local APK',
+}
+
+let getRemoteAPK = {
+  type: 'input',
+  name: 'urlToApk',
+  message: 'URL for remote APK',
+}
+
+if (!argv.l && !argv.r) {
+  inquirer.prompt([localOrRemote]).then(answers => {
+    if (answers.source == 'local') {
+      inquirer.prompt([getLocalAPK]).then (localAnswers => {
+        let path = localAnswers.pathToApk;
+        analyzeApk(path);
+      });
     }
-  ])
-  .then(answers => {
-    answers.apk = answers.apk.replace('.apk','');
-    analyzeApk(answers);
+
+    else if (answers.source == 'remote') {
+      inquirer.prompt([getRemoteAPK]).then( remoteAnswer => {
+        let url = remoteAnswer;
+        // convert url to path
+        // run analyze
+      });
+    }
   });
+}
 
-
-function analyzeApk(answers) {
+function analyzeApk(apk) {
   // APKTool to unzip the APK and get dependencies
-  exec(`apktool d -f ${answers.apk}.apk`, (err, stdout, stderr) => {
-    console.log("Unzipping APK with APKTool...\n");
+  console.log("Unzipping APK with APKTool...\n");
+  exec(`apktool d -f ${apk}.apk`, (err, stdout, stderr) => {
     if (err) {
       console.log("nodejs error running apktool:", err.message, err.stack);
       return;
@@ -56,11 +116,11 @@ function analyzeApk(answers) {
     }
 
     console.log("Getting permissions...\n");
-    let manifest = fs.readFileSync(path.join(__dirname, answers.apk, 'AndroidManifest.xml'), { encoding: 'UTF-8' });
+    let manifest = fs.readFileSync(path.join(__dirname, apk, 'AndroidManifest.xml'), { encoding: 'UTF-8' });
     let permissions = helper.getPermissions(manifest);
 
     let packageList = [];
-    let root = path.join(__dirname, answers.apk, 'smali');
+    let root = path.join(__dirname, apk, 'smali');
 
     console.log("Getting dependencies...\n");
     helper.getDependencies(root, packageList);
