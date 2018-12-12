@@ -13,6 +13,8 @@ const clear = require('clear');
 
 const inquirer = require('inquirer');
 const inspector = require('./lib/inspector');
+const wrapper = require('./lib/wrapper');
+const printer = require('./lib/printer');
 
 var argv = require('yargs')
   .usage('Usage: $0 [options]')
@@ -54,7 +56,7 @@ var argv = require('yargs')
   .example('$0 -l ./Downloads/myapk.apk -d')
   .argv;
 
-printTitle();
+printer.printTitle();
 
 let localOrRemote = {
   type: 'list',
@@ -148,96 +150,4 @@ async function main() {
   console.log('Speicific Dependency', specificDependency);
   console.log('OnlyPermissions', onlyPermissions);
   console.log('Only Dependenceis', onlyDependencies);
-}
-
-/*  
-*   unzipApk
-*   Unzip APK
-*   Arguments: path to zipped APK
-*   Returns: path to unzipped APK
-*/
-function unzipApk(pathToApk) {
-  console.log("Unzipping APK with APKTool...\n");
-  // Put a progress bar here
-  exec(`apktool d -f ${apk}.apk`, (err, stdout, stderr) => {
-    if (err) {
-      console.log("nodejs error running apktool:", err.message, err.stack);
-      return;
-    }
-
-    if (stderr) {
-      console.log("apktool error:", stderr);
-    }
-  });
-}
-
-
-/*  
-*   getPermissions
-*   Get Permissions from unzipped APK
-*   Arguments: path to unzipped APK
-*   Returns: array of permissions
-*/
-function getPermissions(pathToUnzippedApk) {
-  console.log("Getting permissions...\n");
-  let manifest = fs.readFileSync(path.join(__dirname, pathToUnzippedApk, 'AndroidManifest.xml'), { encoding: 'UTF-8' });
-  return inspector.getPermissions(manifest);
-}
-
-
-/*  
-*   getDependencies
-*   Get Dependencies from unzipped APK
-*   Arguments: path to unzipped APK
-*   Returns: array of package names
-*/
-function getDependencies(pathToUnzippedApk) {
-  console.log("Getting dependencies...\n");
-  let packageList = [];
-  let root = path.join(__dirname, pathToUnzippedApk, 'smali');
-
-  inspector.getDependencies(root, packageList);
-  return packageList;
-}
-
-/*  
-*   printPermissions
-*   Print permissions
-*   Arguments: array of permissions
-*/
-function printPermissions(permissionsArray) {
-  console.log("Permissions requested by this application: ");
-  permissionsArray.forEach(permission => {
-    console.log(permission);
-  });
-  console.log('\n\n');
-}
-
-/*  
-*   printDependencies
-*   Print dependencies
-*   Arguments: array of dependencies 
-*/
-function printDependencies(dependenciesList) {
-  console.log("Package dependencies requested by this application: ");
-  dependenciesList.forEach( dependency => {
-    console.log(dependency);
-  });
-  console.log('\n');
-}
-
-/*  
-*   printTitle
-*   Print APK Inspector ASCII title
-*/
-function printTitle() {
-  console.log(
-    chalk.magentaBright(
-      figlet.textSync('APK Inspector', {
-        font: 'Standard',
-        horizontalLayout: 'default',
-        verticalLayout: 'default',
-      }
-    )
-  ));
 }
