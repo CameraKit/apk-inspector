@@ -80,6 +80,7 @@ main();
 async function main() {
   var path = '';
   
+  // if statements for path arguments
   if (!argv.l && !argv.r) {
     let answers = await inquirer.prompt([localOrRemote]);
 
@@ -98,12 +99,55 @@ async function main() {
     }
   }
 
+  else if (argv.l) {
+    // do just local
+  }
+
+  else {
+    // default do remote
+  }
+
+
+  // if statements for specifying permission or dependency
+
+  if (argv.x) {
+    // just look for specific permission
+  }
+
+  else if (argv.y) {
+    // just look for specific dependency
+  }
+
+  else {
+    // do nothing special
+  }
+
+
+  // if statements for permissions or dependencies only
+  if (argv.p) {
+    // just permisisons
+  }
+
+  else if (argv.d) {
+    // just dependencies
+  }
+
+  else {
+    // default
+  }
+
+
   console.log('Path', path);
 }
 
-function analyzeApk(apk) {
-  // APKTool to unzip the APK and get dependencies
+/*  
+*   Unzip APK
+*   Arguments: path to zipped APK
+*   Returns: path to unzipped APK
+*/
+function unzipApk(pathToApk) {
   console.log("Unzipping APK with APKTool...\n");
+  // Put a progress bar here
   exec(`apktool d -f ${apk}.apk`, (err, stdout, stderr) => {
     if (err) {
       console.log("nodejs error running apktool:", err.message, err.stack);
@@ -113,20 +157,34 @@ function analyzeApk(apk) {
     if (stderr) {
       console.log("apktool error:", stderr);
     }
-
-    console.log("Getting permissions...\n");
-    let manifest = fs.readFileSync(path.join(__dirname, apk, 'AndroidManifest.xml'), { encoding: 'UTF-8' });
-    let permissions = inspector.getPermissions(manifest);
-
-    let packageList = [];
-    let root = path.join(__dirname, apk, 'smali');
-
-    console.log("Getting dependencies...\n");
-    inspector.getDependencies(root, packageList);
-
-    printPermissions(permissions);
-    printDependencies(packageList);
   });
+}
+
+
+/*  
+*   Get Permissions from unzipped APK
+*   Arguments: path to unzipped APK
+*   Returns: array of permissions
+*/
+function getPermissions(pathToUnzippedApk) {
+  console.log("Getting permissions...\n");
+  let manifest = fs.readFileSync(path.join(__dirname, pathToUnzippedApk, 'AndroidManifest.xml'), { encoding: 'UTF-8' });
+  return inspector.getPermissions(manifest);
+}
+
+
+/*  
+*   Get Dependencies from unzipped APK
+*   Arguments: path to unzipped APK
+*   Returns: array of package names
+*/
+function getDependencies(pathToUnzippedApk) {
+  console.log("Getting dependencies...\n");
+  let packageList = [];
+  let root = path.join(__dirname, pathToUnzippedApk, 'smali');
+
+  inspector.getDependencies(root, packageList);
+  return packageList;
 }
 
 function printPermissions(permissionsArray) {
