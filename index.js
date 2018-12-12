@@ -12,7 +12,7 @@ const chalk = require('chalk');
 const clear = require('clear');
 
 const inquirer = require('inquirer');
-const helper = require('./lib/helper');
+const inspector = require('./lib/inspector');
 
 var argv = require('yargs')
   .usage('Usage: $0 [options]')
@@ -54,15 +54,7 @@ var argv = require('yargs')
   .example('$0 -l ./Downloads/myapk.apk -d')
   .argv;
 
-console.log(
-  chalk.magentaBright(
-    figlet.textSync('APK Inspector', {
-      font: 'Standard',
-      horizontalLayout: 'default',
-      verticalLayout: 'default',
-    }
-  )
-));
+printTitle();
 
 let localOrRemote = {
   type: 'list',
@@ -83,23 +75,30 @@ let getRemoteAPK = {
   message: 'URL for remote APK',
 }
 
-if (!argv.l && !argv.r) {
-  inquirer.prompt([localOrRemote]).then(answers => {
+main();
+
+async function main() {
+  var path = '';
+  
+  if (!argv.l && !argv.r) {
+    let answers = await inquirer.prompt([localOrRemote]);
+
     if (answers.source == 'local') {
-      inquirer.prompt([getLocalAPK]).then (localAnswers => {
-        let path = localAnswers.pathToApk;
-        analyzeApk(path);
-      });
+      let local = await inquirer.prompt([getLocalAPK]);
+      path = local.pathToApk;
+      // analyzeApk(localAnswers.pathToApk);
     }
 
     else if (answers.source == 'remote') {
-      inquirer.prompt([getRemoteAPK]).then( remoteAnswer => {
-        let url = remoteAnswer;
-        // convert url to path
-        // run analyze
-      });
+      // let url = remoteAnswer;
+      // convert url to path
+      // run analyze
+      remote = await inquirer.prompt([getRemoteAPK]);
+      path = remoteAnswer.urlToApk;
     }
-  });
+  }
+
+  console.log('Path', path);
 }
 
 function analyzeApk(apk) {
@@ -117,13 +116,13 @@ function analyzeApk(apk) {
 
     console.log("Getting permissions...\n");
     let manifest = fs.readFileSync(path.join(__dirname, apk, 'AndroidManifest.xml'), { encoding: 'UTF-8' });
-    let permissions = helper.getPermissions(manifest);
+    let permissions = inspector.getPermissions(manifest);
 
     let packageList = [];
     let root = path.join(__dirname, apk, 'smali');
 
     console.log("Getting dependencies...\n");
-    helper.getDependencies(root, packageList);
+    inspector.getDependencies(root, packageList);
 
     printPermissions(permissions);
     printDependencies(packageList);
@@ -144,4 +143,16 @@ function printDependencies(dependenciesList) {
     console.log(dependency);
   });
   console.log('\n');
+}
+
+function printTitle() {
+  console.log(
+    chalk.magentaBright(
+      figlet.textSync('APK Inspector', {
+        font: 'Standard',
+        horizontalLayout: 'default',
+        verticalLayout: 'default',
+      }
+    )
+  ));
 }
