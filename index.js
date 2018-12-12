@@ -78,7 +78,11 @@ let getRemoteAPK = {
 main();
 
 async function main() {
-  var path = '';
+  var pathToApk = '';
+  var specificPermission = '';
+  var specificDependency = '';
+  var onlyPermissions = false;
+  var onlyDependencies = false;
   
   // if statements for path arguments
   if (!argv.l && !argv.r) {
@@ -86,7 +90,7 @@ async function main() {
 
     if (answers.source == 'local') {
       let local = await inquirer.prompt([getLocalAPK]);
-      path = local.pathToApk;
+      pathToApk = local.pathToApk;
       // analyzeApk(localAnswers.pathToApk);
     }
 
@@ -95,16 +99,19 @@ async function main() {
       // convert url to path
       // run analyze
       remote = await inquirer.prompt([getRemoteAPK]);
-      path = remoteAnswer.urlToApk;
+      pathToApk = remote.urlToApk;
     }
   }
 
   else if (argv.l) {
-    // do just local
+    // check validity of path
+    pathToApk = argv.l;
   }
 
   else {
-    // default do remote
+    // check validity of url
+    // transform url into apk path
+    pathToApk = argv.r;
   }
 
 
@@ -112,24 +119,23 @@ async function main() {
 
   if (argv.x) {
     // just look for specific permission
+    specificPermission = argv.x;
   }
-
-  else if (argv.y) {
+  if
+   (argv.y) {
     // just look for specific dependency
+    specificDependency = argv.y;
   }
-
-  else {
-    // do nothing special
-  }
-
 
   // if statements for permissions or dependencies only
   if (argv.p) {
     // just permisisons
+    onlyPermissions = true;
   }
 
   else if (argv.d) {
     // just dependencies
+    onlyDependencies = true;
   }
 
   else {
@@ -137,10 +143,15 @@ async function main() {
   }
 
 
-  console.log('Path', path);
+  console.log('Path', pathToApk);
+  console.log('Specific Permission', specificPermission);
+  console.log('Speicific Dependency', specificDependency);
+  console.log('OnlyPermissions', onlyPermissions);
+  console.log('Only Dependenceis', onlyDependencies);
 }
 
 /*  
+*   unzipApk
 *   Unzip APK
 *   Arguments: path to zipped APK
 *   Returns: path to unzipped APK
@@ -162,6 +173,7 @@ function unzipApk(pathToApk) {
 
 
 /*  
+*   getPermissions
 *   Get Permissions from unzipped APK
 *   Arguments: path to unzipped APK
 *   Returns: array of permissions
@@ -174,6 +186,7 @@ function getPermissions(pathToUnzippedApk) {
 
 
 /*  
+*   getDependencies
 *   Get Dependencies from unzipped APK
 *   Arguments: path to unzipped APK
 *   Returns: array of package names
@@ -187,6 +200,11 @@ function getDependencies(pathToUnzippedApk) {
   return packageList;
 }
 
+/*  
+*   printPermissions
+*   Print permissions
+*   Arguments: array of permissions
+*/
 function printPermissions(permissionsArray) {
   console.log("Permissions requested by this application: ");
   permissionsArray.forEach(permission => {
@@ -195,6 +213,11 @@ function printPermissions(permissionsArray) {
   console.log('\n\n');
 }
 
+/*  
+*   printDependencies
+*   Print dependencies
+*   Arguments: array of dependencies 
+*/
 function printDependencies(dependenciesList) {
   console.log("Package dependencies requested by this application: ");
   dependenciesList.forEach( dependency => {
@@ -203,6 +226,10 @@ function printDependencies(dependenciesList) {
   console.log('\n');
 }
 
+/*  
+*   printTitle
+*   Print APK Inspector ASCII title
+*/
 function printTitle() {
   console.log(
     chalk.magentaBright(
