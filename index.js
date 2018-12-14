@@ -7,21 +7,17 @@ const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const figlet = require('figlet');
-const chalk = require('chalk');
-const clear = require('clear');
-
 const inquirer = require('inquirer');
-const inspector = require('./lib/inspector');
 const wrapper = require('./lib/wrapper');
 const printer = require('./lib/printer');
+const utility = require('./lib/utility');
 
 var argv = require('yargs')
   .usage('Usage: $0 [options]')
   .option('l', {
     alias: 'local-source',
     nargs: 1,
-    describe: '<path_to_apk> local apk source',
+    describe: '<path_to_apk> relative path to local apk source',
   })
   .option('r', {
     alias: 'remote-source',
@@ -32,11 +28,13 @@ var argv = require('yargs')
     alias: 'permissions-only',
     describe: 'only output permissions',
     type: 'boolean',
+    default: false,
   })
   .option('d', {
     alias: 'dependencies-only',
     describe: 'only output dependencies',
     type: 'boolean',
+    default: false,
   })
   .option('x', {
     alias: 'specify-permission',
@@ -65,55 +63,62 @@ let localOrRemote = {
   choices: ['remote', 'local'],
 }
 
-let getLocalAPK = {
+let getLocalApk = {
   type: 'input',
   name: 'pathToApk',
-  message: 'Path to local APK',
+  message: 'Relative path to local APK:',
 }
 
-let getRemoteAPK = {
+let getRemoteApk = {
   type: 'input',
   name: 'urlToApk',
-  message: 'URL for remote APK',
+  message: 'URL for remote APK:',
 }
+
+
 
 main();
 
 async function main() {
   var pathToApk = '';
+  var urlToApk = '';
+  var pathToUnzippedApk = '';
   var specificPermission = '';
   var specificDependency = '';
-  var onlyPermissions = false;
-  var onlyDependencies = false;
+  var root = __dirname;
   
-  // if statements for path arguments
+  // If statements for path arguments
   if (!argv.l && !argv.r) {
     let answers = await inquirer.prompt([localOrRemote]);
 
     if (answers.source == 'local') {
-      let local = await inquirer.prompt([getLocalAPK]);
+      let local = await inquirer.prompt([getLocalApk]);
       pathToApk = local.pathToApk;
-      // analyzeApk(localAnswers.pathToApk);
     }
 
     else if (answers.source == 'remote') {
-      // let url = remoteAnswer;
-      // convert url to path
-      // run analyze
-      remote = await inquirer.prompt([getRemoteAPK]);
+      remote = await inquirer.prompt([getRemoteApk]);
       pathToApk = remote.urlToApk;
     }
   }
 
-  else if (argv.l) {
-    // check validity of path
-    pathToApk = argv.l;
+  if (argv.l && argv.r) {
+    console.log("APKI Error: Please select either --remote-source (-r) or --local-source (-l) but not both.")
+    console.log("See more information with 'apki --help'");
+    return;
   }
 
-  else {
+  else if (argv.l) {
+    // check validity of path
+    // Clean path to the APK;
+    pathToApk = await utility.verifyPathToApk(root, argv.l);
+  }
+
+  else if (argv.r) {
     // check validity of url
-    // transform url into apk path
-    pathToApk = argv.r;
+    console.log(root);
+    urlToApk = await utility.verifyUrlToApk(argv.r);
+    pathToApk = await utility.downloadApk(root, urlToApk);
   }
 
 
@@ -123,31 +128,30 @@ async function main() {
     // just look for specific permission
     specificPermission = argv.x;
   }
-  if
-   (argv.y) {
+
+  if (argv.y) {
     // just look for specific dependency
     specificDependency = argv.y;
   }
 
-  // if statements for permissions or dependencies only
+
+  pathToUnzippedApk = await utility.unzipApk(pathToApk);
+
+  console.log(pathToUnzippedApk);
+
+  // Just permissions
   if (argv.p) {
-    // just permisisons
-    onlyPermissions = true;
+    console.log(wrapper.getPermissions(pathToUnzippedApk)); 
   }
 
+  // Just Dependencies
   else if (argv.d) {
-    // just dependencies
-    onlyDependencies = true;
+    console.log(wrapper.getDependencies(root, pathToUnzippedApk));
   }
 
   else {
     // default
+    console.log(wrapper.getPermissions(pathToUnzippedApk));
+    console.log(wrapper.getDependencies(root, pathToUnzippedApk));
   }
-
-
-  console.log('Path', pathToApk);
-  console.log('Specific Permission', specificPermission);
-  console.log('Speicific Dependency', specificDependency);
-  console.log('OnlyPermissions', onlyPermissions);
-  console.log('Only Dependenceis', onlyDependencies);
 }
