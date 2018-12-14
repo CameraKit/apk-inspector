@@ -75,8 +75,6 @@ let getRemoteApk = {
   message: 'URL for remote APK:',
 }
 
-
-
 main();
 
 async function main() {
@@ -87,18 +85,22 @@ async function main() {
   var specificDependency = '';
   var root = __dirname;
   
-  // If statements for path arguments
+  /**
+   * If statments for command line arguments
+   */
   if (!argv.l && !argv.r) {
     let answers = await inquirer.prompt([localOrRemote]);
 
     if (answers.source == 'local') {
       let local = await inquirer.prompt([getLocalApk]);
       pathToApk = local.pathToApk;
+      console.log('\n');
     }
 
     else if (answers.source == 'remote') {
       remote = await inquirer.prompt([getRemoteApk]);
       pathToApk = remote.urlToApk;
+      console.log('\n');
     }
   }
 
@@ -108,49 +110,51 @@ async function main() {
     return;
   }
 
+
   else if (argv.l) {
-    // check validity of path
-    // Clean path to the APK;
     pathToApk = await utility.verifyPathToApk(root, argv.l);
   }
 
   else if (argv.r) {
-    // check validity of url
-    console.log(root);
     urlToApk = await utility.verifyUrlToApk(argv.r);
     pathToApk = await utility.downloadApk(root, urlToApk);
   }
 
 
-  // if statements for specifying permission or dependency
-
+/**
+ * Check for specific permission
+ */
   if (argv.x) {
-    // just look for specific permission
     specificPermission = argv.x;
   }
 
+  /**
+   * Check for specific dependency
+   */
   if (argv.y) {
-    // just look for specific dependency
     specificDependency = argv.y;
   }
 
-
   pathToUnzippedApk = await utility.unzipApk(pathToApk);
 
-  console.log(pathToUnzippedApk);
-
-  // Just permissions
+  /**
+   * Check flags for only permissions
+   */
   if (argv.p) {
     console.log(wrapper.getPermissions(pathToUnzippedApk)); 
   }
 
-  // Just Dependencies
+  /**
+   * Check flag for only dependencies
+   */
   else if (argv.d) {
     console.log(wrapper.getDependencies(root, pathToUnzippedApk));
   }
 
+  /**
+   * Default case, run both permissions and dependencies
+   */
   else {
-    // default
     console.log(wrapper.getPermissions(pathToUnzippedApk));
     console.log(wrapper.getDependencies(root, pathToUnzippedApk));
   }
