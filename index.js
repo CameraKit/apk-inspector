@@ -18,7 +18,7 @@ var argv = require('yargs')
   .usage('Usage: $0 [options]')
   .option('c', {
     alias: 'camerakit',
-    type: boolean,
+    type: 'boolean',
     describe: 'Only shows CamearaKit package and Camera permissions',
     default: false,
   })
@@ -92,7 +92,7 @@ async function main() {
   var specificPermission = '';
   var specificDependency = '';
   var root = __dirname;
-  
+
   /**
    * If statments for command line arguments
    */
@@ -133,8 +133,20 @@ async function main() {
     pathToApk = await utility.downloadApk(root, urlToApk);
   }
 
+  /**
+   * If APK is already unzipped, dont unzip again.
+   */
+  if (!fs.existsSync(path.join(__dirname, pathToApk.replace('.apk', '')))) {
+    pathToUnzippedApk = await utility.unzipApk(pathToApk);
+  }
+  else {
+    console.log(
+      chalk.cyan('APK has already been unzipped. Proceeding to inspection.\n')
+    );
+    pathToUnzippedApk = pathToApk.replace('.apk', '');
+  }
 
-/**
+  /**
  * Check for specific permission
  */
   if (argv.x) {
@@ -149,37 +161,33 @@ async function main() {
   }
 
   /**
-   * If APK is already unzipped, dont unzip again.
+   * Check CameraKit flag
    */
-  if (!fs.existsSync(path.join(__dirname, pathToApk.replace('.apk','')))) {
-    pathToUnzippedApk = await utility.unzipApk(pathToApk);
-  }
-  else {
-    console.log(
-      chalk.cyan('APK has already been unzipped. Proceeding to inspection.')
-    );
-    pathToUnzippedApk = pathToApk.replace('.apk', '');
+  if (argv.c) {
+    console.log('Checking for CameraKit package and Camera permisisons');
+    specificPermission = 'CAMERA';
+    specificDependency = 'camerakit';
   }
 
   /**
    * Check flags for only permissions
    */
   if (argv.p) {
-    console.log(wrapper.getPermissions(pathToUnzippedApk)); 
+    printer.printPermissions(wrapper.getPermissions(pathToUnzippedApk), specificPermission);
   }
 
   /**
    * Check flag for only dependencies
    */
   else if (argv.d) {
-    console.log(wrapper.getDependencies(root, pathToUnzippedApk));
+    printer.printDependencies(wrapper.getDependencies(root, pathToUnzippedApk), specificDependency);
   }
 
   /**
    * Default case, run both permissions and dependencies
    */
   else {
-    printer.printPermissions(wrapper.getPermissions(pathToUnzippedApk));
-    printer.printDependencies(wrapper.getDependencies(root, pathToUnzippedApk));
+    printer.printPermissions(wrapper.getPermissions(pathToUnzippedApk), specificPermission);
+    printer.printDependencies(wrapper.getDependencies(root, pathToUnzippedApk), specificDependency);
   }
 }
