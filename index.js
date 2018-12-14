@@ -142,7 +142,16 @@ async function main() {
     specificDependency = argv.y;
   }
 
-  pathToUnzippedApk = await utility.unzipApk(pathToApk);
+
+  if (!fs.existsSync(path.join(__dirname, pathToApk.replace('.apk','')))) {
+    pathToUnzippedApk = await utility.unzipApk(pathToApk);
+  }
+  else {
+    console.log(
+      chalk.cyan('APK has already been unzipped. Proceeding to inspection.')
+    );
+    pathToUnzippedApk = pathToApk.replace('.apk', '');
+  }
 
   /**
    * Check flags for only permissions
