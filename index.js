@@ -8,6 +8,8 @@ const path = require('path');
 const fs = require('fs');
 
 const inquirer = require('inquirer');
+const chalk = require('chalk');
+
 const wrapper = require('./lib/wrapper');
 const printer = require('./lib/printer');
 const utility = require('./lib/utility');
@@ -105,8 +107,13 @@ async function main() {
   }
 
   if (argv.l && argv.r) {
-    console.log("APKI Error: Please select either --remote-source (-r) or --local-source (-l) but not both.")
-    console.log("See more information with 'apki --help'");
+
+    console.log(
+      chalk.red("APKI Error: Please select either --remote-source (-r) or --local-source (-l) but not both.")
+    );
+    console.log(
+      chalk.red("See more information with 'apki --help'")
+    );
     return;
   }
 
