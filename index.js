@@ -16,6 +16,12 @@ const utility = require('./lib/utility');
 
 var argv = require('yargs')
   .usage('Usage: $0 [options]')
+  .option('c', {
+    alias: 'camerakit',
+    type: boolean,
+    describe: 'Only shows CamearaKit package and Camera permissions',
+    default: false,
+  })
   .option('l', {
     alias: 'local-source',
     nargs: 1,
@@ -142,7 +148,9 @@ async function main() {
     specificDependency = argv.y;
   }
 
-
+  /**
+   * If APK is already unzipped, dont unzip again.
+   */
   if (!fs.existsSync(path.join(__dirname, pathToApk.replace('.apk','')))) {
     pathToUnzippedApk = await utility.unzipApk(pathToApk);
   }
@@ -171,7 +179,7 @@ async function main() {
    * Default case, run both permissions and dependencies
    */
   else {
-    console.log(wrapper.getPermissions(pathToUnzippedApk));
-    console.log(wrapper.getDependencies(root, pathToUnzippedApk));
+    printer.printPermissions(wrapper.getPermissions(pathToUnzippedApk));
+    printer.printDependencies(wrapper.getDependencies(root, pathToUnzippedApk));
   }
 }
