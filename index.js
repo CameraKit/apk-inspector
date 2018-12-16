@@ -157,7 +157,7 @@ async function main() {
    * Check CameraKit flag
    */
   if (argv.c) {
-    console.log('Checking for CameraKit package and Camera permisisons');
+    console.log('Checking for CameraKit package and Camera permisisons.\n');
     specificPermission = 'CAMERA';
     specificDependency = 'camerakit';
   }
