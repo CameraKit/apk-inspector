@@ -106,8 +106,9 @@ async function main() {
     }
 
     else if (answers.source == 'remote') {
-      remote = await inquirer.prompt([getRemoteApk]);
-      pathToApk = remote.urlToApk;
+      let remote = await inquirer.prompt([getRemoteApk]);
+      urlToApk = await utility.verifyUrlToApk(remote.urlToApk);
+      pathToApk = await utility.downloadApk(root, urlToApk);
       console.log('\n');
     }
   }
@@ -134,17 +135,9 @@ async function main() {
   }
 
   /**
-   * If APK is already unzipped, dont unzip again.
+   * Unzip APK
    */
-  if (!fs.existsSync(path.join(__dirname, pathToApk.replace('.apk', '')))) {
-    pathToUnzippedApk = await utility.unzipApk(pathToApk);
-  }
-  else {
-    console.log(
-      chalk.cyan('APK has already been unzipped. Proceeding to inspection.\n')
-    );
-    pathToUnzippedApk = pathToApk.replace('.apk', '');
-  }
+  pathToUnzippedApk = await utility.unzipApk(pathToApk);
 
   /**
  * Check for specific permission
