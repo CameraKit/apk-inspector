@@ -1,4 +1,7 @@
-# apk-inspector-web
+<p align="center">
+    <img alt='APK Inspector Header' src='.repo/gh-readme-header.png' />
+</p>
+Find permissions and dependencies used by an Android application. 
 
 ## Installation
 This project currently depends on APKTool. APKTool is an open source library that allows disassembly of APKs. 
@@ -8,8 +11,9 @@ Follow the installation instructions on their [website](https://ibotpeaches.gith
 Install the other project dependencies with `yarn`. 
 
 ## Usage
-Start the script with `apki` or `node index.js`.
+Install the script globally with `npm install -g` and then run with the command with `apki`.
 
+Otherwise run the script from the project directory with the command `node index.js`. 
 ```
 Usage: apki [options]
 
@@ -27,7 +31,8 @@ Options:
 Examples:
   apki -r https://pathtoapk.io -x camera
   apki -l ./Downloads/myapk.apk -d
-  apki --camerakit
-  apki -c
-  apki -r https://pathtoapk.io --c
+  node index.js
 ```
+
+## License
+APK Inspector is under the MIT License. 
