@@ -3,10 +3,6 @@
 // CLI to print permisisons and packages from specified APK
 'use strict';
 
-const { exec } = require('child_process');
-const path = require('path');
-const fs = require('fs');
-
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 
