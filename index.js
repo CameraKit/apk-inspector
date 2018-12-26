@@ -16,21 +16,15 @@ const utility = require('./lib/utility');
 
 var argv = require('yargs')
   .usage('Usage: $0 [options]')
-  .option('c', {
-    alias: 'camerakit',
-    type: 'boolean',
-    describe: 'Only shows CamearaKit package and Camera permissions',
-    default: false,
-  })
   .option('l', {
     alias: 'local-source',
     nargs: 1,
-    describe: '<path_to_apk> relative path to local apk source',
+    describe: '<path_to_apk> relative path to local apk',
   })
   .option('r', {
     alias: 'remote-source',
     nargs: 1,
-    describe: '<url> remote apk souce',
+    describe: '<url> remote apk URL',
   })
   .option('p', {
     alias: 'permissions-only',
