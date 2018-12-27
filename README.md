@@ -20,7 +20,7 @@ Otherwise run the script from the project directory with the command `node index
 
 | option | alias | parameters | description |
 | --- | --- | --- | --- | 
-| --local-source | -l | __string__: path_to_apk | relative path to local APK |
+| --local-source | -l | __string__: path_to_apk | path to local APK |
 | --remote-source | -r | __string__: URL | URL of remote source |
 |  --specify-permission | -x | __string__: permission_name | specific permission to find |
 |  --specify-dependency | -y | __string__: package_name | specific package to find |

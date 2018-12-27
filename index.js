@@ -15,7 +15,7 @@ var argv = require('yargs')
   .option('l', {
     alias: 'local-source',
     nargs: 1,
-    describe: '<path_to_apk> relative path to local apk',
+    describe: '<path_to_apk> path to local apk',
   })
   .option('r', {
     alias: 'remote-source',
@@ -65,7 +65,7 @@ let localOrRemote = {
 let getLocalApk = {
   type: 'input',
   name: 'pathToApk',
-  message: 'Relative path to local APK:',
+  message: 'Path to local APK:',
 }
 
 let getRemoteApk = {
@@ -92,7 +92,7 @@ async function main() {
 
     if (answers.source == 'local') {
       let local = await inquirer.prompt([getLocalApk]);
-      pathToApk = local.pathToApk;
+      pathToApk = await utility.verifyPathToApk(local.pathToApk);
       console.log('\n');
     }
 
@@ -100,7 +100,6 @@ async function main() {
       let remote = await inquirer.prompt([getRemoteApk]);
       urlToApk = await utility.verifyUrlToApk(remote.urlToApk);
       pathToApk = await utility.downloadApk(root, urlToApk);
-      console.log('\n');
     }
   }
 
@@ -117,7 +116,7 @@ async function main() {
 
 
   else if (argv.l) {
-    pathToApk = await utility.verifyPathToApk(root, argv.l);
+    pathToApk = await utility.verifyPathToApk(argv.l);
   }
 
   else if (argv.r) {
