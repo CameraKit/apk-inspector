@@ -33,7 +33,6 @@ Examples
 ```
   apki -r https://pathtoapk.io -x camera
   apki -l ./Downloads/myapk.apk -d
-
   node index.js
 ```
 

@@ -48,6 +48,7 @@ var argv = require('yargs')
   .describe('v', 'show version information')
   .help('h')
   .alias('h', 'help')
+  .example('$0')
   .example('$0 -r https://pathtoapk.io -x camera')
   .example('$0 -l ./Downloads/myapk.apk -d')
   .argv;
@@ -141,15 +142,6 @@ async function main() {
    */
   if (argv.y) {
     specificDependency = argv.y;
-  }
-
-  /**
-   * Check CameraKit flag
-   */
-  if (argv.c) {
-    console.log('Checking for CameraKit package and Camera permisisons.\n');
-    specificPermission = 'CAMERA';
-    specificDependency = 'camerakit';
   }
 
   /**
