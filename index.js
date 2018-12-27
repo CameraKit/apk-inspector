@@ -92,13 +92,13 @@ async function main() {
 
     if (answers.source == 'local') {
       let local = await inquirer.prompt([getLocalApk]);
-      pathToApk = await utility.verifyPathToApk(local.pathToApk);
+      pathToApk = await utility.verifyPathToApk(local.pathToApk.trim());
       console.log('\n');
     }
 
     else if (answers.source == 'remote') {
       let remote = await inquirer.prompt([getRemoteApk]);
-      urlToApk = await utility.verifyUrlToApk(remote.urlToApk);
+      urlToApk = await utility.verifyUrlToApk(remote.urlToApk.trim());
       pathToApk = await utility.downloadApk(root, urlToApk);
     }
   }
