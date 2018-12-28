@@ -6,8 +6,10 @@
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 
+const fs = require('fs');
+
 const wrapper = require('./lib/wrapper');
-const printer = require('./lib/printer');
+const output = require('./lib/output');
 const utility = require('./lib/utility');
 
 var argv = require('yargs')
@@ -53,7 +55,7 @@ var argv = require('yargs')
   .example('$0 -l ./Downloads/myapk.apk -d')
   .argv;
 
-printer.printTitle();
+output.printTitle();
 
 let localOrRemote = {
   type: 'list',
@@ -82,6 +84,8 @@ async function main() {
   var pathToUnzippedApk = '';
   var specificPermission = '';
   var specificDependency = '';
+  var permissionsArray = null;
+  var dependenciesArray = null;
   var root = __dirname;
 
   /**
@@ -147,21 +151,25 @@ async function main() {
    * Check flags for only permissions
    */
   if (argv.p) {
-    printer.printPermissions(wrapper.getPermissions(pathToUnzippedApk), specificPermission);
+    permissionsArray = wrapper.getPermissions(pathToUnzippedApk);
   }
 
   /**
    * Check flag for only dependencies
    */
   else if (argv.d) {
-    printer.printDependencies(wrapper.getDependencies(root, pathToUnzippedApk), specificDependency);
+    dependenciesArray = wrapper.getDependencies(root, pathToUnzippedApk);
   }
 
   /**
    * Default case, run both permissions and dependencies
    */
   else {
-    printer.printPermissions(wrapper.getPermissions(pathToUnzippedApk), specificPermission);
-    printer.printDependencies(wrapper.getDependencies(root, pathToUnzippedApk), specificDependency);
+    permissionsArray = wrapper.getPermissions(pathToUnzippedApk);
+    dependenciesArray = wrapper.getDependencies(root, pathToUnzippedApk);
   }
+
+  
+  output.writeToJSON(permissionsArray, dependenciesArray, 'output.json');
+  output.writeToText(permissionsArray, dependenciesArray, 'output.txt');
 }
