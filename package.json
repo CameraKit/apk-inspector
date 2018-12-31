@@ -1,6 +1,6 @@
 {
   "name": "apk-inspector",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "main": "index.js",
   "repository": "https://github.com/CameraKit/apk-inspector.git",
   "author": "emersoncloud <emerson.cloud@gmail.com>",
