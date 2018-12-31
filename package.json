@@ -1,8 +1,8 @@
 {
-  "name": "apk-inspector-web",
-  "version": "1.0.0",
+  "name": "apk-inspector",
+  "version": "0.2.0",
   "main": "index.js",
-  "repository": "https://github.com/CameraKit/apk-inspector-web.git",
+  "repository": "https://github.com/CameraKit/apk-inspector.git",
   "author": "emersoncloud <emerson.cloud@gmail.com>",
   "license": "MIT",
   "dependencies": {

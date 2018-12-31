@@ -6,8 +6,10 @@
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 
+const fs = require('fs');
+
 const wrapper = require('./lib/wrapper');
-const printer = require('./lib/printer');
+const output = require('./lib/output');
 const utility = require('./lib/utility');
 
 var argv = require('yargs')
@@ -21,6 +23,18 @@ var argv = require('yargs')
     alias: 'remote-source',
     nargs: 1,
     describe: '<url> remote apk URL',
+  })
+  .option('o', {
+    alias: 'output-type',
+    nargs: 1,
+    describe: '[json], [text], [both] - filetype of output',
+    default: 'json',
+  })
+  .option('c', {
+    alias: 'console-output',
+    describe: 'print output to console',
+    type: 'boolean',
+    default: false,
   })
   .option('p', {
     alias: 'permissions-only',
@@ -37,12 +51,12 @@ var argv = require('yargs')
   .option('x', {
     alias: 'specify-permission',
     nargs: 1,
-    describe: '<string> name of permission to search',
+    describe: '<string> console log if permisison was found',
   })
   .option('y', {
     alias: 'specify-dependency',
     nargs: 1,
-    describe: '<string> name of dependency to search',
+    describe: '<string> console log if dependency was found',
   })
   .alias('v', 'version')
   .describe('v', 'show version information')
@@ -53,7 +67,7 @@ var argv = require('yargs')
   .example('$0 -l ./Downloads/myapk.apk -d')
   .argv;
 
-printer.printTitle();
+output.printTitle();
 
 let localOrRemote = {
   type: 'list',
@@ -82,6 +96,8 @@ async function main() {
   var pathToUnzippedApk = '';
   var specificPermission = '';
   var specificDependency = '';
+  var permissionsArray = null;
+  var dependenciesArray = null;
   var root = __dirname;
 
   /**
@@ -104,7 +120,6 @@ async function main() {
   }
 
   if (argv.l && argv.r) {
-
     console.log(
       chalk.red("APKI Error: Please select either --remote-source (-r) or --local-source (-l) but not both.")
     );
@@ -130,38 +145,61 @@ async function main() {
   pathToUnzippedApk = await utility.unzipApk(pathToApk);
 
   /**
- * Check for specific permission
- */
-  if (argv.x) {
-    specificPermission = argv.x;
-  }
-
-  /**
-   * Check for specific dependency
-   */
-  if (argv.y) {
-    specificDependency = argv.y;
-  }
-
-  /**
    * Check flags for only permissions
    */
   if (argv.p) {
-    printer.printPermissions(wrapper.getPermissions(pathToUnzippedApk), specificPermission);
+    permissionsArray = wrapper.getPermissions(pathToUnzippedApk);
   }
 
   /**
    * Check flag for only dependencies
    */
   else if (argv.d) {
-    printer.printDependencies(wrapper.getDependencies(root, pathToUnzippedApk), specificDependency);
+    dependenciesArray = wrapper.getDependencies(root, pathToUnzippedApk);
   }
 
   /**
    * Default case, run both permissions and dependencies
    */
   else {
-    printer.printPermissions(wrapper.getPermissions(pathToUnzippedApk), specificPermission);
-    printer.printDependencies(wrapper.getDependencies(root, pathToUnzippedApk), specificDependency);
+    permissionsArray = wrapper.getPermissions(pathToUnzippedApk);
+    dependenciesArray = wrapper.getDependencies(root, pathToUnzippedApk);
+  }
+
+  /**
+   * Output permissions and dependencies to command line
+   */
+  if (argv.c) {
+    output.print(permissionsArray, dependenciesArray);
+  }
+
+  /**
+   * Check for specific permission
+   */
+  if (argv.x) {
+    output.printSpecificPermission(permissionsArray, argv.x);
+  }
+
+  /**
+   * Check for specific dependency
+   */
+  if (argv.y) {
+    output.printSpecificDependency(dependenciesArray, argv.y);
+  }
+
+  /**
+   * If statements to handle file output types
+   */
+  if (argv.o == 'json') {
+    output.writeToJSON(permissionsArray, dependenciesArray, 'output.json');
+  }
+  
+  else if (argv.o == 'text') {
+    output.writeToText(permissionsArray, dependenciesArray, 'output.txt');
+  }
+
+  else if (argv.o == 'both') {
+    output.writeToJSON(permissionsArray, dependenciesArray, 'output.json');
+    output.writeToText(permissionsArray, dependenciesArray, 'output.txt');
   }
 }
