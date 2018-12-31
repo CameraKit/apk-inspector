@@ -24,6 +24,18 @@ var argv = require('yargs')
     nargs: 1,
     describe: '<url> remote apk URL',
   })
+  .option('o', {
+    alias: 'output-type',
+    nargs: 1,
+    describe: '[json], [text], [both] - filetype of output',
+    default: 'json',
+  })
+  .option('c', {
+    alias: 'console-output',
+    describe: 'print output to console',
+    type: 'boolean',
+    default: false,
+  })
   .option('p', {
     alias: 'permissions-only',
     describe: 'only output permissions',
@@ -45,18 +57,6 @@ var argv = require('yargs')
     alias: 'specify-dependency',
     nargs: 1,
     describe: '<string> console log if dependency was found',
-  })
-  .option('o', {
-    alias: 'output-type',
-    nargs: 1,
-    describe: '[json], [text], [both]',
-    default: 'json',
-  })
-  .option('c', {
-    alias: 'console-output',
-    describe: 'print output to console',
-    type: 'boolean',
-    default: false,
   })
   .alias('v', 'version')
   .describe('v', 'show version information')
