@@ -39,12 +39,24 @@ var argv = require('yargs')
   .option('x', {
     alias: 'specify-permission',
     nargs: 1,
-    describe: '<string> name of permission to search',
+    describe: '<string> console log if permisison was found',
   })
   .option('y', {
     alias: 'specify-dependency',
     nargs: 1,
-    describe: '<string> name of dependency to search',
+    describe: '<string> console log if dependency was found',
+  })
+  .option('o', {
+    alias: 'output-type',
+    nargs: 1,
+    describe: '[json], [text], [both]',
+    default: 'json',
+  })
+  .option('c', {
+    alias: 'console-output',
+    describe: 'print output to console',
+    type: 'boolean',
+    default: false,
   })
   .alias('v', 'version')
   .describe('v', 'show version information')
@@ -108,7 +120,6 @@ async function main() {
   }
 
   if (argv.l && argv.r) {
-
     console.log(
       chalk.red("APKI Error: Please select either --remote-source (-r) or --local-source (-l) but not both.")
     );
@@ -134,20 +145,6 @@ async function main() {
   pathToUnzippedApk = await utility.unzipApk(pathToApk);
 
   /**
- * Check for specific permission
- */
-  if (argv.x) {
-    specificPermission = argv.x;
-  }
-
-  /**
-   * Check for specific dependency
-   */
-  if (argv.y) {
-    specificDependency = argv.y;
-  }
-
-  /**
    * Check flags for only permissions
    */
   if (argv.p) {
@@ -169,7 +166,40 @@ async function main() {
     dependenciesArray = wrapper.getDependencies(root, pathToUnzippedApk);
   }
 
+  /**
+   * Output permissions and dependencies to command line
+   */
+  if (argv.c) {
+    output.print(permissionsArray, dependenciesArray);
+  }
+
+  /**
+   * Check for specific permission
+   */
+  if (argv.x) {
+    output.printSpecificPermission(permissionsArray, argv.x);
+  }
+
+  /**
+   * Check for specific dependency
+   */
+  if (argv.y) {
+    output.printSpecificDependency(dependenciesArray, argv.y);
+  }
+
+  /**
+   * If statements to handle file output types
+   */
+  if (argv.o == 'json') {
+    output.writeToJSON(permissionsArray, dependenciesArray, 'output.json');
+  }
   
-  output.writeToJSON(permissionsArray, dependenciesArray, 'output.json');
-  output.writeToText(permissionsArray, dependenciesArray, 'output.txt');
+  else if (argv.o == 'text') {
+    output.writeToText(permissionsArray, dependenciesArray, 'output.txt');
+  }
+
+  else if (argv.o == 'both') {
+    output.writeToJSON(permissionsArray, dependenciesArray, 'output.json');
+    output.writeToText(permissionsArray, dependenciesArray, 'output.txt');
+  }
 }
