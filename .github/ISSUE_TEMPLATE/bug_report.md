@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
 **Desktop (please complete the following information):**
  - Node Version [e.g. 8.11.3]
  - APK Inspector Version [e.g. 0.1.0]
- - OS [e.g. Windows, Linux]
+  - OS [e.g. Windows, Linux, Mac]
 
 **Additional context**
 Add any other context about the problem here.
