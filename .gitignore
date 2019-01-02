@@ -63,5 +63,6 @@ typings/
 # VS Code
 .vscode
 
-# Testing Files
-.test_apk
+# Program output
+output.json
+output.txt

@@ -22,8 +22,10 @@ Otherwise run the script from the project directory with the command `node index
 | --- | --- | --- | --- | 
 | --local-source | -l | __string__: path_to_apk | path to local APK |
 | --remote-source | -r | __string__: URL | URL of remote source |
-|  --specify-permission | -x | __string__: permission_name | specific permission to find |
-|  --specify-dependency | -y | __string__: package_name | specific package to find |
+| --output-type | -o | [__json__], [__text__], [__both__] | output file type |
+| --console-output | -c | none | print output to console |
+|  --specify-permission | -x | __string__: permission_name | console log if permisison is found |
+|  --specify-dependency | -y | __string__: package_name | console log if dependency is found |
 | --permissions-only | -p | none | only output permissions |
 | --dependencies-only | -d | none | only output dependencies |
 | --version | -v | none | Show version number |
